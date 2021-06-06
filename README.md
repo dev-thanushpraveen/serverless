@@ -47,6 +47,11 @@ custom:
     - bucketName: <BUCKET_NAME>
       localDir: UploadData
 ```
+  
+   
+# Add Common Functions like API_Responses.js
+ _Step 1_: Import Common files for repo
+  
 
 # Create an API lambda
 
@@ -57,22 +62,35 @@ _Step 1_: Create Folder lambdas
   i.e.
 
   ```
+  const Responses = require("./common/API_Responses");
+
   exports.handler = async (event) => {
-  console.log("event", event);
+    console.log("event", event);
 
-  if (!event.pathParameters || !event.pathParameters.ID) {
-    // failed
-  }
+    if (!event.pathParameters || !event.pathParameters.ID) {
+      // failed
+      return Responses._400({ message: "ID is missing" });
+    }
 
-  let ID = event.pathParameters.ID;
+    let ID = event.pathParameters.ID;
 
-  if (data[ID]) {
-    // return data
-  }
+    if (data[ID]) {
+      return Responses._200(data[ID]);
+      // return data
+    }
+
+    // failed as ID not in the data
+    return Responses._400({ message: "ID not found" });
   };
   ```
   
-# Add Common Functions like API_Responses.js
- _Step 1_: Import Common files for repo
+_Step 2_: Add functions to serverless.js
   
-  
+- ```
+  functions:
+    getUsers:
+      handler: <LAMBDA_FUNC_PATH>.handler
+
+  ```
+
+- **example-> handler: lambdas/getUser.handler**
