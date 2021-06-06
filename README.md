@@ -72,3 +72,7 @@ _Step 1_: Create Folder lambdas
   };
   ```
   
+# Add Common Functions like API_Responses.js
+ _Step 1_: Import Common files for repo
+  
+  
