@@ -90,7 +90,11 @@ _Step 2_: Add functions to serverless.js
   functions:
     getUsers:
       handler: <LAMBDA_FUNC_PATH>.handler
-
+      events:
+        - http:
+            path: get-user/{ID}
+            method: GET
+            cors: true
   ```
 
 - **example-> handler: lambdas/getUser.handler**
