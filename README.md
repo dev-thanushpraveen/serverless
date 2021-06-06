@@ -47,11 +47,10 @@ custom:
     - bucketName: <BUCKET_NAME>
       localDir: UploadData
 ```
-  
-   
+
 # Add Common Functions like API_Responses.js
- _Step 1_: Import Common files for repo
-  
+
+_Step 1_: Import Common files for repo
 
 # Create an API lambda
 
@@ -83,20 +82,38 @@ _Step 1_: Create Folder lambdas
     return Responses._400({ message: "ID not found" });
   };
   ```
-  
+
 _Step 2_: Add functions to serverless.js
-  
+
 - ```
   functions:
     getUsers:
       handler: <LAMBDA_FUNC_PATH>.handler
       events:
-        - http:
-            path: get-user/{ID}
-            method: GET
-            cors: true
+      - http:
+          path: get-user/{ID}
+          method: GET
+          cors: true
   ```
 
 - **example-> handler: lambdas/getUser.handler**
-  
- _Step 3_: Run **sls deploy** to view the url in terminal
+
+# Add Serverless Webpack to the project
+
+_Step 1_: ``` npm i --save serverless-webpack
+
+_Step 2_: ``` npm i --save webpack
+
+_Step 3_: Add serverless-webpack to the plugins in serverless.yaml
+
+```
+    plugins:
+      - serverless-webpack
+```
+
+To pack individual lambda as package add
+
+```
+package:
+      individually: true
+```
