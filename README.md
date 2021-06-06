@@ -98,3 +98,5 @@ _Step 2_: Add functions to serverless.js
   ```
 
 - **example-> handler: lambdas/getUser.handler**
+  
+ _Step 3_: Run **sls deploy** to view the url in terminal
