@@ -100,9 +100,18 @@ _Step 2_: Add functions to serverless.js
 
 # Add Serverless Webpack to the project
 
-_Step 1_: ``` npm i --save serverless-webpack
+_Step 1_:
 
-_Step 2_: ``` npm i --save webpack
+```
+npm i --save serverless-webpack
+
+```
+
+_Step 2_:
+
+```
+npm i --save webpack
+```
 
 _Step 3_: Add serverless-webpack to the plugins in serverless.yaml
 
@@ -111,9 +120,26 @@ _Step 3_: Add serverless-webpack to the plugins in serverless.yaml
       - serverless-webpack
 ```
 
-To pack individual lambda as package add
+To pack individual lambda as package, add
 
 ```
-package:
+    package:
       individually: true
+```
+
+_Step 4_: Create webpack.config.js file
+
+```
+module.exports = {
+  target: 'node',
+  mode:'production'
+};
+```
+
+Note: Mode can be changed as production or none, none will not compress the code and shows original file in lambda
+
+_Step 5_: To deploy Only on function run
+
+```
+sls deploy -f <FUNCTION_NAME>
 ```
