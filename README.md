@@ -47,3 +47,28 @@ custom:
     - bucketName: <BUCKET_NAME>
       localDir: UploadData
 ```
+
+# Create an API lambda
+
+_Step 1_: Create Folder lambdas
+
+- Create File as function name. ex. getUser.js
+- Create the lambda function
+  i.e.
+
+  ```
+  exports.handler = async (event) => {
+  console.log("event", event);
+
+  if (!event.pathParameters || !event.pathParameters.ID) {
+    // failed
+  }
+
+  let ID = event.pathParameters.ID;
+
+  if (data[ID]) {
+    // return data
+  }
+  };
+  ```
+  
