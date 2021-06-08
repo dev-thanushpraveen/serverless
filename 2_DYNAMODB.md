@@ -81,3 +81,51 @@ provider:
         - dynamodb:*
       Resource: "*"
 ```
+
+# Create Post method in lambda
+
+_Step 1_: Add following code to dynamo.js file in common folder,
+
+```
+async write(data, TableName) {
+        if (!data.ID) {
+            throw Error('no ID on the data');
+        }
+
+        const params = {
+            TableName,
+            Item: data,
+        };
+
+        const res = await documentClient.put(params).promise();
+
+        if (!res) {
+            throw Error(`There was an error inserting ID of ${data.ID} in table ${TableName}`);
+        }
+
+        return data;
+    },
+```
+
+_Step 2_: Create a user in lambda as follow:
+```
+let ID = event.pathParameters.ID;
+    const user = JSON.parse(event.body);
+    user.ID = ID;
+
+    const newUser = await Dynamo.write(user, tableName).catch(err => {
+        console.log('error in dynamo write', err);
+        return null;
+    });
+ ```
+ _Step 3_: Add function to serverless.yaml:
+ 
+ ```
+ createPlayerScore:
+    handler: lambdas/endpoints/createPlayerScore.handler
+    events:
+      - http:
+          path: create-player-score/{ID}
+          method: POST
+          cors: true
+ ```
