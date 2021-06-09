@@ -14,7 +14,7 @@ functions:
           request:
             uri: http://api.icndb.com/{proxy}  #url
             parameters:
-              path:
+              paths:
                 proxy: true
 ```
 
