@@ -28,14 +28,14 @@ _Step 1_: We can set limit to the api call as follow:
 
 ```
 provider:
-  usagePlans:
+  usagePlan:
     quota:
       limit: 1000
       period: MONTH
 ```
 - To set how many request can perform per second add below config:
  ```
- usagePlans:
+ usagePlan:
      throttle:
       rateLimit: 5
       burstLimit: 20
@@ -50,7 +50,7 @@ _Step 2_: If you have different level of usage plans we can use different setup 
       - myFreeApiKey
     - paid
       - myPaidApiKey
-  usagePlans:
+  usagePlan:
     - free:
         quota:
           limit: 1000
