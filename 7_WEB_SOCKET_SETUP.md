@@ -167,3 +167,5 @@ resources:
               KeyType: HASH
           BillingMode: PAY_PER_REQUEST
 ```
+
+_Step 4_: Deploy and check in **http://websocket.org/echo.html**
