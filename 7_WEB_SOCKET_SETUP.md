@@ -34,3 +34,136 @@ _Step 2_: Create a folder for websockets under lambdas folder and create some fi
  
  > touch connect.js default.js disconnect.js message.js
 
+Connect.js
+```
+const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Dynamo = require("../common/Dynamo");
+
+const tableName = process.env.tableName;
+
+exports.handler = async (event) => {
+  console.log("event", event);
+
+  const { connectionId: connectionID } = event.requestContext;
+
+  const data = {
+    ID: connectionID,
+    data: Date.now(),
+    messages: [],
+  };
+
+  await Dynamo.write(data, tableName);
+
+  return Responses._200({ message: "Connected" });
+};
+
+```
+
+disconnect.js
+```
+const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Dynamo = require("../common/Dynamo");
+
+const tableName = process.env.tableName;
+
+exports.handler = async (event) => {
+  console.log("event", event);
+
+  const { connectionId: connectionID } = event.requestContext;
+
+  await Dynamo.write(connectionID, tableName);
+
+  return Responses._200({ message: "Disconnected" });
+};
+
+```
+
+default.js
+```
+
+```
+
+message.js
+```
+const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Dynamo = require("../common/Dynamo");
+
+const tableName = process.env.tableName;
+
+exports.handler = async (event) => {
+  console.log("event", event);
+  const { connectionId: connectionID } = event.requestContext;
+
+  const body = JSON.parse(event.body);
+
+  try {
+    const record = await Dynamo.get(connectionID, tableName);
+    const messages = record.messages;
+
+    messages.push(body.message);
+
+    const data = {
+      ...record,
+      messages,
+    };
+
+    await Dynamo.write(data, tableName);
+
+    return Responses._200({ message: "Got a message" });
+  } catch (e) {
+    console.log("error", e);
+    return Responses._400({ message: "Message Received Failed" });
+  }
+};
+
+```
+
+_Step 3_: Update the serverless.yaml
+
+```
+environment:
+  tableName: ${self:custom.tableName}
+iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+          Resource: "*"
+custom:
+  tableName: WebsocketUsers
+functions:
+  websocket-connect:
+    handler: lambdas/websockets/connect.handler
+    events:
+      - websocket:
+          route: $connect # $ refers to inbuild route
+  websocket-disconnect:
+    handler: lambdas/websockets/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+  websocket-default:
+    handler: lambdas/websockets/default.handler
+    events:
+      - websocket:
+          route: $default
+  websocket-message:
+    handler: lambdas/websockets/message.handler
+    events:
+      - websocket:
+          route: message
+resources:
+    Resources:
+      WebsocketUserTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:custom.tableName}
+          AttributeDefinitions:
+            - AttributeName: ID
+              AttributeType: S
+          KeySchema:
+            - AttributeName: ID
+              KeyType: HASH
+          BillingMode: PAY_PER_REQUEST
+```
