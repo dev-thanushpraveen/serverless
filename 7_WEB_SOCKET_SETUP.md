@@ -36,7 +36,7 @@ _Step 2_: Create a folder for websockets under lambdas folder and create some fi
 
 Connect.js
 ```
-const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Responses = require("../common/API_Responses");
 const Dynamo = require("../common/Dynamo");
 
 const tableName = process.env.tableName;
@@ -44,24 +44,31 @@ const tableName = process.env.tableName;
 exports.handler = async (event) => {
   console.log("event", event);
 
-  const { connectionId: connectionID } = event.requestContext;
+  const {
+    connectionId: connectionID,
+    domainName,
+    stage,
+  } = event.requestContext;
 
   const data = {
     ID: connectionID,
-    data: Date.now(),
+    date: Date.now(),
     messages: [],
+    domainName,
+    stage,
   };
 
   await Dynamo.write(data, tableName);
 
-  return Responses._200({ message: "Connected" });
+  return Responses._200({ message: "connected" });
 };
+
 
 ```
 
 disconnect.js
 ```
-const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Responses = require("../common/API_Responses");
 const Dynamo = require("../common/Dynamo");
 
 const tableName = process.env.tableName;
@@ -71,34 +78,44 @@ exports.handler = async (event) => {
 
   const { connectionId: connectionID } = event.requestContext;
 
-  await Dynamo.write(connectionID, tableName);
+  await Dynamo.delete(connectionID, tableName);
 
-  return Responses._200({ message: "Disconnected" });
+  return Responses._200({ message: "disconnected" });
 };
+
 
 ```
 
 default.js
 ```
+const Responses = require("../common/API_Responses");
+
+exports.handler = async (event) => {
+  console.log("event", event);
+
+  return Responses._200({ message: "default" });
+};
 
 ```
 
 message.js
 ```
-const Responses = require("../../../myserverlessproject/lambdas/common/API_Responses");
+const Responses = require("../common/API_Responses");
 const Dynamo = require("../common/Dynamo");
+const WebSocket = require("../common/websocketMessage");
 
 const tableName = process.env.tableName;
 
 exports.handler = async (event) => {
   console.log("event", event);
+
   const { connectionId: connectionID } = event.requestContext;
 
   const body = JSON.parse(event.body);
 
   try {
     const record = await Dynamo.get(connectionID, tableName);
-    const messages = record.messages;
+    const { messages, domainName, stage } = record;
 
     messages.push(body.message);
 
@@ -109,12 +126,22 @@ exports.handler = async (event) => {
 
     await Dynamo.write(data, tableName);
 
-    return Responses._200({ message: "Got a message" });
-  } catch (e) {
-    console.log("error", e);
-    return Responses._400({ message: "Message Received Failed" });
+    await WebSocket.send({
+      domainName,
+      stage,
+      connectionID,
+      message: "This is a reply to your message",
+    });
+    console.log("sent message");
+
+    return Responses._200({ message: "got a message" });
+  } catch (error) {
+    return Responses._400({ message: "message could not be received" });
   }
+
+  return Responses._200({ message: "got a message" });
 };
+
 
 ```
 
