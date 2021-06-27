@@ -67,6 +67,7 @@ exports.handler = async (event) => {
 ```
 
 disconnect.js
+
 ```
 const Responses = require("../common/API_Responses");
 const Dynamo = require("../common/Dynamo");
@@ -196,3 +197,6 @@ resources:
 ```
 
 _Step 4_: Deploy and check in **http://websocket.org/echo.html**
+
+
+THE End
